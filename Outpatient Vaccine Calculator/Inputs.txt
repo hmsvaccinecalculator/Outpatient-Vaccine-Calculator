@@ -1,0 +1,127 @@
+observe({
+    req(input$site_registration,
+        input$cohort_id-roster,
+        input$cohort_id-duplicate,
+        input$contact-staffing,
+        input$contact-screening,
+        input$contact-scheduling,
+        input$contact-outreaches,
+        input$scheduling-availability,
+        input$scheduling-probability,
+        input$scheduling-cancel,
+        input$staffing-buyout,
+        input$staffing-planning,
+        input$staffing-perdiem,
+        input$staffing-overhead,
+        input$staffing-training,
+        input$staffing-practicerun,
+        input$equipment-ppeorder,
+        input$equipment-ppecost,
+        input$equipment-stocking,
+        input$equipment-paperwork,
+        input$equipment-pharmacy,
+        input$equipment-refrigeration,
+        input$equipment-supplyorder,
+        input$qi-pdsa1,
+        input$qi-pdsa2,
+        input$safety-donning,
+        input$no-show,
+        input$intake-equipment,
+        input$intake-wages,
+        input$intake-time,
+        input$intake-registration,
+        input$waiting-setup,
+        input$waiting-cleanup,
+        input$backroom-wages,
+        input$backroom-vialprep,
+        input$backroom-needleprep,
+        input$vaccination-id,
+        input$vaccination-wages,
+        input$vaccination-nurses,
+        input$vaccination-disposal,
+        input$cleanup-doffing,
+        input$documentation-reporting,
+        input$observation-time,
+        input$observation-anaphylaxis,
+        input$observation-supplies,
+        input$observation-vaers,
+        input$followup-time,
+        input$followup-cancel,
+        input$followup-reschedule,
+        input$closingup-cleanup,
+        input$closingup-wages,
+        input$closingup-storage,
+        input$billing-claims,
+        
+        cancelOutput = TRUE
+    )
+    
+    showWarningIf <- function(condition, message) {
+      if (condition) {
+        showNotification(message, type = "warning")
+      }
+    }
+    
+        showWarningIf(input$`site_registration` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`cohort_id-roster` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`cohort_id-duplicate` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`contact-staffing` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`contact-screening` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`contact-scheduling` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`contact-outreaches` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`scheduling-availability` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`scheduling-probability` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`scheduling-probability` > 1, "The value you entered is greater than 100%.")
+        showWarningIf(input$`scheduling-cancel` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-buyout` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-planning` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-perdiem` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-overhead` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-overhead` > 1, "The value you entered is greater than 100%.")
+        showWarningIf(input$`staffing-training` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`staffing-practicerun` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-ppeorder` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-ppecost` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-stocking` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-paperwork` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-pharmacy` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-refrigeration` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`equipment-supplyorder` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`qi-pdsa1` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`qi-pdsa2` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`safety-donning` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`no-show` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`no-show` > 1, "The value you entered is greater than 100%.")
+        showWarningIf(input$`intake-equipment` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`intake-wages` < 0, "The value you entered is a negative number.")
+        #showWarningIf(input$`intake-time` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`intake-registration` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`waiting-setup` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`waiting-cleanup` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`backroom-wages` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`backroom-vialprep` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`backroom-needleprep` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`vaccination-id` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`vaccination-wages` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`vaccination-nurses` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`vaccination-disposal` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`cleanup-doffing` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`documentation-reporting` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`observation-time` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`observation-anaphylaxis` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`observation-anaphylaxis` >1, "The value you entered is greater than 100%.")
+        showWarningIf(input$`observation-supplies` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`observation-vaers` < 0, "The value you entered is a negative number.")
+        #showWarningIf(input$`followup-time` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`followup-cancel` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`followup-cancel` > 1, "The value you entered is greater than 100%.")
+        showWarningIf(input$`followup-reschedule` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`closingup-cleanup` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`closingup-wages` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`closingup-storage` < 0, "The value you entered is a negative number.")
+        showWarningIf(input$`billing-claims` < 0, "The value you entered is a negative number.")
+  })
+
+((((input$`followup-time`-input$`intake-time`-1)*60))
+                  /(input$`vaccination-id`+input$`vaccination-disposal`+input$`safety-donning`+input$`cleanup-doffing`))
+                  *input$`vaccination-nurses`*(1-input$`no-show`)
