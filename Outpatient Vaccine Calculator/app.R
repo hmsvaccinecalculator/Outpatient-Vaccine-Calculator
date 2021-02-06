@@ -1,6 +1,7 @@
-#install.packages("shiny","shinydashboard", "shinyTime", "scales","tidyverse","DT")
+#install.packages("shiny","shinydashboard", "shinyWidgets", "shinyTime", "scales","tidyverse","DT")
 library(shiny)
 library(shinydashboard)
+library(shinyWidgets)
 library(shinyTime)
 library(scales)
 library(tidyverse)
@@ -15,8 +16,8 @@ regular_color <- "navy"
 
 #format header and link to HMS CPC and Ariadne Labs
 header <- dashboardHeader(
-  title = "Outpatient COVID Vaccination Time & Budget Calculator",
-  titleWidth = 600,
+  title = "Outpatient Vaccination Budget Calculator",
+  titleWidth = 400,
   tags$li(a(href = "https://primarycare.hms.harvard.edu/",
             img(src = "HMS-CPC.png",
                 title = "HMS Center for Primary Care", height = "30px", width='100px'),
@@ -42,7 +43,7 @@ sidebar <- dashboardSidebar(
              href = "https://github.com/hmsvaccinecalculator/Outpatient-Vaccine-Calculator"),
     menuItem("Original Spreadsheet", icon = icon("google-drive"), 
              href = "https://docs.google.com/spreadsheets/d/1Eg1sYAvxQv6VYpPl4BO4ym5xAG09H54Dmj1bdFSpWTg/edit#gid=0"),
-    menuItem("Acknowledgements/Legal", tabName = "references", icon = icon("book"))
+    menuItem("Important Information", tabName = "references", icon = icon("book"))
   )
 )
 
@@ -51,43 +52,29 @@ body <- dashboardBody(
     tabItem(
     ## MAIN DASHBOARD ---------------------------------------------------
       tabName = "dashboard",
-      
-      h2("Instructions"),
-      p("This tool is intended to assist site managers at outpatient clinics or 
-        offsite locations with preparation, workforce planning and budgeting for 
-        COVID vaccination in compliance with NASEM, ACIP, state, and county 
-        guidelines and regulations, principally focused on Moderna, Pfizer, or 
-        AstraZeneca vaccine distribution. Input parameters can 
-        be customized and adjusted in the three 'Input' tabs at the left of the 
-        screen, and will automatically update the Results tab.
-        The current version assumes costs of the purchasing the vaccines
-        themselves are subsumed and federally funded under current CARES Act 
-        provisions, hence the calculator focuses on prep and administration 
-        costs including workforce, PPE and auxiliary supplies. Calculations are 
-        meant to be estimates only, with usual disclaimers. Prior to use, we 
-        recommend ", 
-        a("this readiness quick-start guide.",
-          href = "https://eziz.org/assets/docs/COVID19/IMM-1333.pdf"),
-        ),
-      p("These results assume:",
-        
-        tags$ul(tags$li("outreach/scheduling, registration, and post-vaccine observation 
-                      will be done by medical assistants-which can be changed to other types of workers on the Input sheet);"),
-                
-                tags$li("per-diem staff (MAs, nurses, custodial) will need to be hired or 
-                      pulled from other activities, at a cost, for the vaccine on-site 
-                      administration-including scheduling, registration, administration, 
-                      and observation"), 
-                
-                tags$li("refrigeration/freezer equipment will be a separate 
-                      line-item or otherwise sourced or pre-existing (hence, not included 
-                      in these cost estimates); and"),
-                
-                tags$li("1 hour lunch break will be provided for staff each day.")
-        ),
+      box(title = "Instructions", width = NULL, solidHeader = TRUE, status = input_element_color,
+          collapsible = TRUE, collapsed = TRUE,
+          p("This tool is intended to assist site managers at outpatient clinics or 
+            offsite locations with preparation, workforce planning and budgeting for 
+            COVID vaccination in compliance with NASEM, ACIP, state, and county 
+            guidelines and regulations, principally focused on Moderna, Pfizer, or 
+            AstraZeneca vaccine distribution."
+          ),
+          p("Input parameters can 
+            be customized and adjusted in the three 'Input' tabs at the left of the 
+            screen, and will automatically update the Results tab.
+            The current version assumes costs of the purchasing the vaccines
+            themselves are subsumed and federally funded under current CARES Act 
+            provisions, hence the calculator focuses on prep and administration 
+            costs including workforce, PPE and auxiliary supplies. Calculations are 
+            meant to be estimates only, with usual disclaimers. Prior to use, we 
+            recommend ", 
+                a("this readiness quick-start guide.",
+                  href = "https://eziz.org/assets/docs/COVID19/IMM-1333.pdf"),
+          ),
       ),
-    h2("Results"),
-      fluidRow(
+      
+    fluidRow(
         valueBoxOutput("vaccination_cost_box1", width = 4),
         
         valueBoxOutput("vaccination_cost_box2", width = 4),
@@ -96,7 +83,7 @@ body <- dashboardBody(
       ),
       fluidRow(
         tabBox(
-          title = "Staff Data",
+          width = "100%",
           # The id lets us use input$tabset1 on the server to find the current tab
           id = "tabset1", height = "250px",
           
@@ -299,9 +286,9 @@ body <- dashboardBody(
                  
                  timeInput("followup-time", "Time of Last Patient Appointment (24 Hr format)", value = strptime("17:00:00", "%T"),
                            seconds = FALSE),
-                 numericInput("followup-cancel", "Rate of Appointment Changes/Cancellations for Dose 2", value = 0.1,
+                 numericInput("followup-cancel", "Rate of Appointment Changes/Cancellations for Dose 2, Enter '0' if Single Dose Vaccine", value = 0.1,
                               min = 0, max = 1),
-                 numericInput("followup-reschedule", "Time Required to Reschedule/Cancel Appointments for Dose 2 (Minutes)", value = 5,
+                 numericInput("followup-reschedule", "Time Required to Reschedule/Cancel Appointments for Dose 2 (Minutes) Enter '0' if Single Dose Vaccine", value = 5,
                               min = 0),
              ),
              box(title = "Closing Up", width = NULL, solidHeader = TRUE, status = input_element_color,
@@ -328,6 +315,24 @@ body <- dashboardBody(
     ### Acknowledgment-Legal ----------------------------------------------------------
     tabItem(
       tabName = "references",
+      h2("Assumptions"),
+      p("These results assume:",
+        
+        tags$ul(tags$li("outreach/scheduling, registration, and post-vaccine observation 
+                      will be done by medical assistants-which can be changed to other types of workers on the Input sheet);"),
+                
+                tags$li("per-diem staff (MAs, nurses, custodial) will need to be hired or 
+                      pulled from other activities, at a cost, for the vaccine on-site 
+                      administration-including scheduling, registration, administration, 
+                      and observation"), 
+                
+                tags$li("refrigeration/freezer equipment will be a separate 
+                      line-item or otherwise sourced or pre-existing (hence, not included 
+                      in these cost estimates); and"),
+                
+                tags$li("1 hour lunch break will be provided for staff each day.")
+        ),
+      ),
       h2("Acknowledgements"),
       p("Thanks to site managers at Kaiser Permanente Northern California, 
         Intermountain Healthcare, University of California San Francisco, 
@@ -381,6 +386,10 @@ body <- dashboardBody(
                       a("sanjay_basu@hms.harvard.edu",
                         href = "mailto:sanjay_basu@hms.harvard.edu"),
                       ")"),
+              tags$li("Taylor Zabel (",
+                      a("taylor_zabel@hms.harvard.edu",
+                        href = "mailto:taylor_zabel@hms.harvard.edu"),
+                      ")")
       ),
       h2(),
       p(),
@@ -533,7 +542,7 @@ server <- function(input, output) {
   #       showWarningIf(input$`billing-claims` < 0, "The value you entered is a negative number.")
   # })
 
- ##Backend Variable Calculations------------------------------ 
+  ##Backend Variable Calculations------------------------------ 
   activehours <- reactive({
     as.numeric(input$`followup-time`-input$`intake-time`)-1
   })
@@ -693,7 +702,8 @@ server <- function(input, output) {
                         "Overall Vaccination Campaign (fixed + recurring, across all subphases)"
     )
     table
-  }, options = list(searching = FALSE, paging = FALSE, sort = FALSE))
+  }, options = list(searching = FALSE, 
+                    paging = FALSE, sort = FALSE, scrollX = TRUE), rownames = FALSE)
   
   output$staffwages = renderDataTable({
     rows2 = c("Medical Assistants", "Nurses","Custodial","Total Per Diem Personnel Costs")
@@ -719,7 +729,8 @@ server <- function(input, output) {
                         "Overall Vaccination Campaign (fixed + recurring, across all subphases) (USD)"
                         )
     table
-  }, options = list(searching = FALSE, paging = FALSE, sort = FALSE))
+  }, options = list(searching = FALSE, 
+                    paging = FALSE, sort = FALSE, scrollX = TRUE), rownames = FALSE)
   
   output$vaxtotals = renderDataTable({
     rows3 = c("Number of vaccinations completed per day", 
@@ -736,11 +747,11 @@ server <- function(input, output) {
                dollar(equipment_pervax())
               )
     table = data.frame(rows3, total3)
-    
-    colnames(table) = NULL
+    colnames(table) = c(" ", " ")
     
     table
-  }, options = list(searching = FALSE, paging = FALSE, sort = FALSE))
+  }, options = list(searching = FALSE, 
+                    paging = FALSE, sort = FALSE, scrollX = TRUE), rownames = FALSE)
   
   output$vaccination_cost_box1 <- renderValueBox({
     valueBox(dollar(totalcost()), "Total Effective Cost Per Vaccination",
