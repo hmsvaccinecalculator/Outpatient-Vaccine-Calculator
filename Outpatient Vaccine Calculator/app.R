@@ -155,11 +155,11 @@ body <- dashboardBody(tabItems(
   tabItem(
     tabName = "off-site-prep",
     fluidRow(
-      valueBoxOutput("vaccination_cost_box11", width = 4),
+      valueBoxOutput("vaccination_cost_box4", width = 4),
       
-      valueBoxOutput("vaccination_cost_box22", width = 4),
+      valueBoxOutput("vaccination_cost_box5", width = 4),
       
-      valueBoxOutput("vaccination_cost_box33", width = 4),
+      valueBoxOutput("vaccination_cost_box6", width = 4),
     ),
     column(
       width = 4,
@@ -391,6 +391,13 @@ body <- dashboardBody(tabItems(
   ### On-Site Activities --------------------------------------------------
   tabItem(
     tabName = "on-site-activities",
+    fluidRow(
+      valueBoxOutput("vaccination_cost_box7", width = 4),
+      
+      valueBoxOutput("vaccination_cost_box8", width = 4),
+      
+      valueBoxOutput("vaccination_cost_box9", width = 4),
+    ),
     column(
       width = 4,
       box(
@@ -547,6 +554,13 @@ body <- dashboardBody(tabItems(
   ),
   ### Post-Admin-----------------------
   tabItem(
+    fluidRow(
+      valueBoxOutput("vaccination_cost_box10", width = 4),
+      
+      valueBoxOutput("vaccination_cost_box11", width = 4),
+      
+      valueBoxOutput("vaccination_cost_box12", width = 4),
+    ),
     tabName = "post-admin",
     column(
       width = 4,
@@ -1230,29 +1244,7 @@ server <- function(input, output) {
     )
   })
   
-  output$vaccination_cost_box11 <- renderValueBox({
-    valueBox(
-      dollar(totalcost()),
-      "Total Effective Cost Per Vaccination",
-      icon = icon("dollar-sign"),
-      color = highlight_color
-    )
-  })
-  
   output$vaccination_cost_box2 <- renderValueBox({
-    valueBox(
-      dollar(
-        13 * (
-          medwages_persub() + nursewages_persub() + custodialwages_persub()
-        )
-      ),
-      "Total Per Diem Personnel Costs",
-      icon = icon("dollar-sign"),
-      color = "maroon"
-    )
-  })
-  
-  output$vaccination_cost_box22 <- renderValueBox({
     valueBox(
       dollar(
         13 * (
@@ -1277,7 +1269,97 @@ server <- function(input, output) {
     )
   })
   
-  output$vaccination_cost_box33 <- renderValueBox({
+  output$vaccination_cost_box4 <- renderValueBox({
+    valueBox(
+      dollar(totalcost()),
+      "Total Effective Cost Per Vaccination",
+      icon = icon("dollar-sign"),
+      color = highlight_color
+    )
+  })
+  
+  output$vaccination_cost_box5 <- renderValueBox({
+    valueBox(
+      dollar(
+        13 * (
+          medwages_persub() + nursewages_persub() + custodialwages_persub()
+        )
+      ),
+      "Total Per Diem Personnel Costs",
+      icon = icon("dollar-sign"),
+      color = "maroon"
+    )
+  })
+  
+  output$vaccination_cost_box6 <- renderValueBox({
+    valueBox(
+      dollar((
+        medwages_persub() + nursewages_persub() + custodialwages_persub()
+      ) / weekspersub()
+      ),
+      "Weekly Per Diem Personnel Costs",
+      icon = icon("dollar-sign"),
+      color = "aqua"
+    )
+  })
+  
+  output$vaccination_cost_box7 <- renderValueBox({
+    valueBox(
+      dollar(totalcost()),
+      "Total Effective Cost Per Vaccination",
+      icon = icon("dollar-sign"),
+      color = highlight_color
+    )
+  })
+  
+  output$vaccination_cost_box8 <- renderValueBox({
+    valueBox(
+      dollar(
+        13 * (
+          medwages_persub() + nursewages_persub() + custodialwages_persub()
+        )
+      ),
+      "Total Per Diem Personnel Costs",
+      icon = icon("dollar-sign"),
+      color = "maroon"
+    )
+  })
+  
+  output$vaccination_cost_box9 <- renderValueBox({
+    valueBox(
+      dollar((
+        medwages_persub() + nursewages_persub() + custodialwages_persub()
+      ) / weekspersub()
+      ),
+      "Weekly Per Diem Personnel Costs",
+      icon = icon("dollar-sign"),
+      color = "aqua"
+    )
+  })
+  
+  output$vaccination_cost_box10 <- renderValueBox({
+    valueBox(
+      dollar(totalcost()),
+      "Total Effective Cost Per Vaccination",
+      icon = icon("dollar-sign"),
+      color = highlight_color
+    )
+  })
+  
+  output$vaccination_cost_box11 <- renderValueBox({
+    valueBox(
+      dollar(
+        13 * (
+          medwages_persub() + nursewages_persub() + custodialwages_persub()
+        )
+      ),
+      "Total Per Diem Personnel Costs",
+      icon = icon("dollar-sign"),
+      color = "maroon"
+    )
+  })
+  
+  output$vaccination_cost_box12 <- renderValueBox({
     valueBox(
       dollar((
         medwages_persub() + nursewages_persub() + custodialwages_persub()
