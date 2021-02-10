@@ -1,10 +1,10 @@
-install.packages("shiny",
-                 "shinydashboard",
-                 "shinyWidgets",
-                 "shinyTime",
-                 "scales",
-                 "tidyverse",
-                 "DT")
+# install.packages("shiny",
+#                  "shinydashboard",
+#                  "shinyWidgets",
+#                  "shinyTime",
+#                  "scales",
+#                  "tidyverse",
+#                  "DT")
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -43,6 +43,19 @@ header <- dashboardHeader(
       img(
         src = "Ariadne.png",
         title = "Ariadne Labs",
+        height = "30px",
+        width = '100px'
+      ),
+      style = "padding-top:10px; padding-bottom:10px;"
+    ),
+    class = "dropdown"
+  ),
+  tags$li(
+    a(
+      href = "https://collectivehealth.com/",
+      img(
+        src = "collective.png",
+        title = "Collective Health",
         height = "30px",
         width = '100px'
       ),
