@@ -1,4 +1,5 @@
-#install.packages("shiny","shinydashboard", "shinyWidgets", "shinyTime", "scales","tidyverse","DT")
+#install.packages("shiny","shinydashboard", "shinyWidgets", "shinyTime", "scales","tidyverse","DT", "openxlsx")
+# install.packages("basictabler")
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -6,10 +7,12 @@ library(shinyTime)
 library(scales)
 library(tidyverse)
 library(DT)
+library(openxlsx)
+library(basictabler)
 
 #' Code structure for this R Shiny app was inspired by the dashboard created by the AFI DSI COVID-19 Research Group's
 #' COVID-19 Screening Tool: https://github.com/UW-Madison-DataScience/Paltiel-COVID-19-Screening-for-College
-## Dashboard, Header, and Sidebar------------------
+  ## Dashboard, Header, and Sidebar------------------
 input_element_color <- "primary"
 highlight_color <- "olive"
 regular_color <- "navy"
@@ -96,7 +99,7 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(tabItems(
   tabItem(
-    ## MAIN DASHBOARD ---------------------------------------------------
+  ## MAIN DASHBOARD ---------------------------------------------------
     tabName = "dashboard",
     box(
       title = "Instructions: Click (+) to Expand",
@@ -137,12 +140,12 @@ body <- dashboardBody(tabItems(
     ),
     
     fluidRow(
-      column(width = 6,
+      column(width = 4,
         box(
           title = "Time Inputs: Click (+) to Expand",
           width = NULL,
           solidHeader = TRUE,
-          status = input_element_color,
+          status = "primary",
           collapsible = TRUE,
           collapsed = TRUE,
           
@@ -188,14 +191,26 @@ body <- dashboardBody(tabItems(
             value = 5,
             min = 0
           ),
-          
+          numericInput(
+            "followup-cancel",
+            "Rate of Appointment Changes/Cancellations for Dose 2, Enter '0' if Single Dose Vaccine",
+            value = 0.1,
+            min = 0,
+            max = 1
+          ),
+          numericInput(
+            "followup-reschedule",
+            "Time Required to Reschedule/Cancel Appointments for Dose 2 (Minutes) Enter '0' if Single Dose Vaccine",
+            value = 5,
+            min = 0
+          ),
           
         ),
         box(
           title = "Wage Inputs: Click (+) to Expand",
           width = NULL,
           solidHeader = TRUE,
-          status = input_element_color,
+          status = "primary",
           collapsible = TRUE,
           collapsed = TRUE,
           
@@ -237,7 +252,7 @@ body <- dashboardBody(tabItems(
           ),
         )
       ),
-    column(width = 6,
+    column(width = 8,
       fluidRow(
         tabBox(
           title = downloadButton("downloadData", "Download"),
@@ -256,7 +271,7 @@ body <- dashboardBody(tabItems(
     ),
     ),
   ),
-  ### Additional Inputs ------------------------------------------------
+  ## Additional Inputs ------------------------------------------------
   
   tabItem(
     tabName = "off-site-prep", 
@@ -624,28 +639,7 @@ body <- dashboardBody(tabItems(
           min = 0
         ),
       ),
-      box(
-        title = "Follow-Up",
-        width = NULL,
-        solidHeader = TRUE,
-        status = input_element_color,
-        collapsible = TRUE,
-        collapsed = TRUE,
-        
-        numericInput(
-          "followup-cancel",
-          "Rate of Appointment Changes/Cancellations for Dose 2, Enter '0' if Single Dose Vaccine",
-          value = 0.1,
-          min = 0,
-          max = 1
-        ),
-        numericInput(
-          "followup-reschedule",
-          "Time Required to Reschedule/Cancel Appointments for Dose 2 (Minutes) Enter '0' if Single Dose Vaccine",
-          value = 5,
-          min = 0
-        ),
-      ),
+      
       box(
         title = "Closing Up",
         width = NULL,
@@ -684,7 +678,7 @@ body <- dashboardBody(tabItems(
       ),
     ),
   ),
-  ### Acknowledgment-Legal ----------------------------------------------------------
+  ## Acknowledgment-Legal ----------------------------------------------------------
   tabItem(
     tabName = "references",
     h2("Assumptions"),
@@ -721,7 +715,8 @@ body <- dashboardBody(tabItems(
         Center, Tufts Healthcare, Harvard Medical School, Ariadne Labs, CVSHealth,
         Los Angeles Department of Public Health, Alameda Health System, and
         HealthRight360 for providing input parameters based on their experience
-        to date.
+        to date. The app developers would also like to thank Yarden Tamir, Shreyas Srinath,
+        and Benjy Renton for their advice regarding app development strategies.  
       "
     ),
     
@@ -794,131 +789,7 @@ ui <- dashboardPage(header, sidebar, body)
 #Server------------------
 
 server <- function(input, output) {
-  ## Check that inputs meet restrictions ---------------------------------------
-  # observe({
-  #   req(input$site_registration,
-  #       input$cohort_id-roster,
-  #       input$cohort_id-duplicate,
-  #       input$contact-staffing,
-  #       input$contact-screening,
-  #       input$contact-scheduling,
-  #       input$contact-outreaches,
-  #       input$scheduling-availability,
-  #       input$scheduling-probability,
-  #       input$scheduling-cancel,
-  #       input$staffing-buyout,
-  #       input$staffing-planning,
-  #       input$staffing-perdiem,
-  #       input$staffing-overhead,
-  #       input$staffing-training,
-  #       input$staffing-practicerun,
-  #       input$equipment-ppeorder,
-  #       input$equipment-ppecost,
-  #       input$equipment-stocking,
-  #       input$equipment-paperwork,
-  #       input$equipment-pharmacy,
-  #       input$equipment-refrigeration,
-  #       input$equipment-supplyorder,
-  #       input$qi-pdsa1,
-  #       input$qi-pdsa2,
-  #       input$safety-donning,
-  #       input$no-show,
-  #       input$intake-equipment,
-  #       input$intake-wages,
-  #       input$intake-time,
-  #       input$intake-registration,
-  #       input$waiting-setup,
-  #       input$waiting-cleanup,
-  #       input$backroom-wages,
-  #       input$backroom-vialprep,
-  #       input$backroom-needleprep,
-  #       input$vaccination-id,
-  #       input$vaccination-wages,
-  #       input$vaccination-nurses,
-  #       input$vaccination-disposal,
-  #       input$cleanup-doffing,
-  #       input$documentation-reporting,
-  #       input$observation-time,
-  #       input$observation-anaphylaxis,
-  #       input$observation-supplies,
-  #       input$observation-vaers,
-  #       input$followup-time,
-  #       input$followup-cancel,
-  #       input$followup-reschedule,
-  #       input$closingup-cleanup,
-  #       input$closingup-wages,
-  #       input$closingup-storage,
-  #       input$billing-claims,
-  #
-  #       cancelOutput = TRUE
-  #   )
-  #
-  #   showWarningIf <- function(condition, message) {
-  #     if (condition) {
-  #       showNotification(message, type = "warning")
-  #     }
-  #   }
-  #
-  #       showWarningIf(input$`site_registration` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`cohort_id-roster` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`cohort_id-duplicate` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`contact-staffing` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`contact-screening` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`contact-scheduling` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`contact-outreaches` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`scheduling-availability` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`scheduling-probability` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`scheduling-probability` > 1, "The value you entered is greater than 100%.")
-  #       showWarningIf(input$`scheduling-cancel` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-buyout` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-planning` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-perdiem` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-overhead` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-overhead` > 1, "The value you entered is greater than 100%.")
-  #       showWarningIf(input$`staffing-training` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`staffing-practicerun` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-ppeorder` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-ppecost` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-stocking` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-paperwork` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-pharmacy` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-refrigeration` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`equipment-supplyorder` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`qi-pdsa1` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`qi-pdsa2` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`safety-donning` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`no-show` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`no-show` > 1, "The value you entered is greater than 100%.")
-  #       showWarningIf(input$`intake-equipment` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`intake-wages` < 0, "The value you entered is a negative number.")
-  #       #showWarningIf(input$`intake-time` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`intake-registration` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`waiting-setup` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`waiting-cleanup` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`backroom-wages` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`backroom-vialprep` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`backroom-needleprep` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`vaccination-id` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`vaccination-wages` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`vaccination-nurses` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`vaccination-disposal` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`cleanup-doffing` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`documentation-reporting` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`observation-time` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`observation-anaphylaxis` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`observation-anaphylaxis` >1, "The value you entered is greater than 100%.")
-  #       showWarningIf(input$`observation-supplies` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`observation-vaers` < 0, "The value you entered is a negative number.")
-  #       #showWarningIf(input$`followup-time` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`followup-cancel` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`followup-cancel` > 1, "The value you entered is greater than 100%.")
-  #       showWarningIf(input$`followup-reschedule` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`closingup-cleanup` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`closingup-wages` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`closingup-storage` < 0, "The value you entered is a negative number.")
-  #       showWarningIf(input$`billing-claims` < 0, "The value you entered is a negative number.")
-  # })
-  
+
   ##Backend Variable Calculations------------------------------
   activehours <- reactive({
     as.numeric(input$`followup-time` - input$`intake-time`) - 1
@@ -1058,6 +929,168 @@ server <- function(input, output) {
   totalcost <- reactive({
     personnel_pervax() + equipment_pervax()
   })
+  
+  ##Generate Data Frame for Download--------------
+  
+  a1 <- c(
+    " ",
+    "Logistics/Supervisors",
+    "IT",
+    "Pharmacist",
+    "Scheduling",
+    "Registration and Observers",
+    "Vaccine Prep/Backend",
+    "Vaccine Administrators",
+    "Custodian",
+    " ",
+    " ",
+    "Medical Assistants",
+    "Nurses",
+    "Custodial",
+    "Total Per Diem Personnel Costs",
+    " ",
+    " ",
+    "Number of vaccinations completed per day",
+    "Total vaccinations completed, overall vax campaign (all subphases)",
+    "Number of days to vaccinate each subphase (of 13 subphases)",
+    "Number of weeks to complete vax campaign",
+    "Personnel cost per vaccination",
+    "Equipment/supply cost per vaccination",
+    " "
+  )
+  b1 <- reactive({
+    c(
+      "Fixed, One-Time, Setup (Hours)",
+      as.numeric(logistics_onetime()),
+      as.numeric(it_onetime()),
+      as.numeric(pharm_onetime()),
+      "N/A",
+      "N/A",
+      "N/A",
+      "N/A",
+      "N/A",
+      " ",
+      "Fixed, One-Time, Setup (USD)",
+      "N/A",
+      "N/A",
+      "N/A",
+      "N/A",
+      " ",
+      " ",
+      round(vaxperday()),
+      round(totalvax()),
+      round(dayspersub()),
+      round(weeks2vax()),
+      dollar(personnel_pervax()),
+      dollar(equipment_pervax()),
+      " "
+    )
+  }) 
+  
+  c1 <- reactive({
+    c(
+      "Recurring, per week (Hours)",
+      round(logistics_persub() / weekspersub()),
+      round(it_persub() / weekspersub()),
+      round(pharm_persub() / weekspersub()),
+      round(scheduling_persub() / weekspersub()),
+      round(registration_persub() / weekspersub()),
+      round(vaxprep_persub() / weekspersub()),
+      round(vaxadmin_persub() / weekspersub()),
+      round(custodian_persub() / weekspersub()),
+      " ",
+      "Recurring, per week (USD)",
+      dollar_format() (round(medwages_persub() / weekspersub())),
+      dollar_format() (round(nursewages_persub() / weekspersub())),
+      dollar_format() (round(custodialwages_persub() / weekspersub())),
+      dollar_format() (round((
+        medwages_persub() + nursewages_persub() + custodialwages_persub()
+      ) / weekspersub()
+      )),
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " "
+    )
+  })
+  
+  d1 <- reactive({
+    c(
+      "Recurring, per subphase (Hours)",
+      round(logistics_persub()),
+      round(it_persub()),
+      round(pharm_persub()),
+      round(scheduling_persub()),
+      round(registration_persub()),
+      round(vaxprep_persub()),
+      round(vaxadmin_persub()),
+      round(custodian_persub()),
+      " ",
+      "Recurring, per subphase (USD)",
+      dollar_format() (round(medwages_persub())),
+      dollar_format() (round(nursewages_persub())),
+      dollar_format() (round(custodialwages_persub())),
+      dollar_format() (round((
+          medwages_persub() + nursewages_persub() + custodialwages_persub()
+        )
+      )),
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " "
+      
+    )
+  })
+  
+  e1 <- reactive({
+    c(
+      "Overall Vaccination Campaign (Hours)",
+      round(13 * logistics_persub() + logistics_onetime()),
+      round(13 * it_persub() + it_onetime()),
+      round(13 * pharm_persub() + pharm_onetime()),
+      round(13 * scheduling_persub()),
+      round(13 * registration_persub()),
+      round(13 * vaxprep_persub()),
+      round(13 * vaxadmin_persub()),
+      round(13 * custodian_persub()),
+      " ",
+      "Overall Vaccination Campaign (USD)",
+      dollar_format() (round(13 * medwages_persub())),
+      dollar_format() (round(13 * nursewages_persub())),
+      dollar_format() (round(13 * custodialwages_persub())),
+      dollar_format() (round(
+        13 * (
+          medwages_persub() + nursewages_persub() + custodialwages_persub()
+        )
+      )),
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " ",
+      " "
+    )
+  })
+  
+  df = reactive({data.frame(a1,b1(),c1(), d1(),e1())
+    
+    })
+  
+ 
+  
   ##Generate Tables with Backend Values--------------------
   output$staffhours = renderDataTable({
     rows1 = c(
@@ -1269,79 +1302,18 @@ server <- function(input, output) {
     )
   })
   
-  output$vaccination_cost_box7 <- renderValueBox({
-    valueBox(
-      dollar(totalcost()),
-      "Total Effective Cost Per Vaccination",
-      icon = icon("dollar-sign"),
-      color = highlight_color
-    )
-  })
-  
-  output$vaccination_cost_box8 <- renderValueBox({
-    valueBox(
-      dollar(
-        13 * (
-          medwages_persub() + nursewages_persub() + custodialwages_persub()
-        )
-      ),
-      "Total Per Diem Personnel Costs",
-      icon = icon("dollar-sign"),
-      color = "maroon"
-    )
-  })
-  
-  output$vaccination_cost_box9 <- renderValueBox({
-    valueBox(
-      dollar((
-        medwages_persub() + nursewages_persub() + custodialwages_persub()
-      ) / weekspersub()
-      ),
-      "Weekly Per Diem Personnel Costs",
-      icon = icon("dollar-sign"),
-      color = "aqua"
-    )
-  })
-  
-  output$vaccination_cost_box10 <- renderValueBox({
-    valueBox(
-      dollar(totalcost()),
-      "Total Effective Cost Per Vaccination",
-      icon = icon("dollar-sign"),
-      color = highlight_color
-    )
-  })
-  
-  output$vaccination_cost_box11 <- renderValueBox({
-    valueBox(
-      dollar(
-        13 * (
-          medwages_persub() + nursewages_persub() + custodialwages_persub()
-        )
-      ),
-      "Total Per Diem Personnel Costs",
-      icon = icon("dollar-sign"),
-      color = "maroon"
-    )
-  })
-  
-  output$vaccination_cost_box12 <- renderValueBox({
-    valueBox(
-      dollar((
-        medwages_persub() + nursewages_persub() + custodialwages_persub()
-      ) / weekspersub()
-      ),
-      "Weekly Per Diem Personnel Costs",
-      icon = icon("dollar-sign"),
-      color = "aqua"
-    )
-  })
+  ##Generate Downloadable Workbook------
+ 
   
   output$downloadData <- downloadHandler(
-    filename = function() {"Outpatient COVID-19 Vaccine Budget Results.csv"},
-    content = function(file) {
-      write.csv("test", file)
-    }
+    filename = function() {"Outpatient COVID-19 Vaccine Budget Results.xlsx"},
+    content = function(file) { 
+      # write.csv(df(), file, row.names = FALSE, col.names = FALSE)
+      # #Write the data set in a new workbook
+      write.xlsx(df(), file,
+                 sheetName="Vaccination Data", col.names= FALSE, colWidths = "auto", append=FALSE)
+      
+     }
   )
 }
 
