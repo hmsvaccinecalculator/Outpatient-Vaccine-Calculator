@@ -716,7 +716,7 @@ body <- dashboardBody(tabItems(
         Los Angeles Department of Public Health, Alameda Health System, and
         HealthRight360 for providing input parameters based on their experience
         to date. The app developers would also like to thank Yarden Tamir, Shreyas Srinath,
-        and Benjy Renton for their advice regarding app development strategies.  
+        and Benjy Renton for their advice regarding web development strategies.  
       "
     ),
     
@@ -754,7 +754,7 @@ body <- dashboardBody(tabItems(
       information, idea or instruction contained in the content or services 
       provided to you. We cannot and will not be held legally, financially, or 
       medically responsible for decisions made using these calculators, equations, 
-      and algorithms, and this Site is for the use of medical professionals only.
+      and algorithms.
       "
     ),
     
@@ -768,6 +768,12 @@ body <- dashboardBody(tabItems(
         "Sanjay Basu MD PhD (",
         a("sanjay_basu@hms.harvard.edu",
           href = "mailto:sanjay_basu@hms.harvard.edu"),
+        ")"
+      ),
+      tags$li(
+        "Rebecca Weintraub MD (",
+        a("rweintraub@ariadnelabs.org",
+          href = "mailto:rweintraub@ariadnelabs.org"),
         ")"
       ),
       tags$li(
